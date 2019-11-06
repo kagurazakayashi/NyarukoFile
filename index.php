@@ -2,9 +2,9 @@
 $root = "/"; //相对目录的根文件夹，以"/"结尾，默认为这个 PHP 文件在哪就浏览哪个文件夹。
 $rootdir = dirname(__FILE__); //设置文件夹访问权限范围，防止恶意浏览，默认值为当前PHP文件目录为最高限制目录。
 
-ini_set('open_basedir', $rootdir);
 $ddir = "";
 $ddira = "?";
+ini_set('open_basedir', ($rootdir.';'.sys_get_temp_dir()));
 if (isset($_GET['path']) && strlen($_GET['path']) > 0) {
     $root .= $_GET['path'];
     $root = str_replace("\\","/",$root);
@@ -22,10 +22,31 @@ if (isset($_GET['path']) && strlen($_GET['path']) > 0) {
         }
     }
 }
-$dir = @dirname(__FILE__);
-$path = str_replace("\\","/",$dir.$root);
+$dirname = @dirname(__FILE__);
+$path = str_replace("\\","/",$dirname.$root);
 $dir = @opendir($path);
 $canopen = ($dir) ? true : false;
+if ($canopen && isset($_FILES) && count($_FILES) > 0) {
+    foreach ($_FILES as $tfile) {
+        $disableExts = array("php");
+        $temp = explode(".", $tfile["name"]);
+        $extension = end($temp);
+        if ($tfile["type"] == "text/x-php" || in_array($extension, $disableExts)) {
+            echo "不支持的文件类型";
+        } else if ($tfile["error"] > 0) {
+            echo "错误：" . $tfile["error"];
+        } else {
+            // if (file_exists($dir . $tfile["name"])) {
+            //     echo "文件已存在";
+            // } else {
+                move_uploaded_file($tfile["tmp_name"], $path .'/'. $tfile["name"]);
+                echo "完成";
+            // }
+        }
+    }
+    die();
+}
+
 function sizeunit($bytes)
 {
     if ($bytes >= 1073741824) $bytes = number_format($bytes / 1073741824, 2) . ' GB';
@@ -65,7 +86,7 @@ if ($canopen) {
             }
             $alink = implode("/",$alinkarr);
             if ($alink[0] == '/') $alink = substr($alink, 1);
-            $typeicon = ["inode"=>"14f","text"=>"873","image"=>"3f4","application"=>"8b8","audio"=>"405","font"=>"8e2","message"=>"0c9","drawing"=>"40a","x-world"=>"14c"];
+            $typeicon = ["inode"=>"14f","text"=>"873","image"=>"3f4","video"=>"63a","application"=>"8b8","audio"=>"405","font"=>"8e2","message"=>"0c9","drawing"=>"40a","x-world"=>"14c"];
             if (isset($typeicon[$typearr[0]])) $icon = $typeicon[$typearr[0]];
             $filetable .= "<tr>";
             $filetable .= "<td><a href='".$alink."' mdui-tooltip=\"{content: '".$content."'}\"><div class='mdui-chip'><span class='mdui-chip-icon'><i class='mdui-icon material-icons'>&#xe".$icon.";</i></span><span class='mdui-chip-title'>".$content."</span></div></a></td>";
@@ -119,7 +140,7 @@ $allsize = $allfile." 文件, ".$alldir." 文件夹, <span mdui-tooltip=\"{conte
             <button class="mdui-textfield-close mdui-btn mdui-btn-icon" title="取消搜索"><i class="mdui-icon material-icons">&#xe5cd;</i></button>
         </div>
         <a href="javascript:window.location.reload(true);" class="mdui-btn mdui-btn-icon" title="刷新"><i class="mdui-icon material-icons">&#xe5d5;</i></a>
-        <a href="javascript:;" class="mdui-btn mdui-btn-icon" title="上传文件" mdui-dialog="{target: '#uploadDialog'}"><i class="mdui-icon material-icons">&#xe2c3;</i></a>
+        <a href="javascript:openUploadDiglog();" class="mdui-btn mdui-btn-icon" title="上传文件"><i class="mdui-icon material-icons">&#xe2c3;</i></a>
     </div>
 </div>
 <div class="mdui-table-fluid">
@@ -147,6 +168,29 @@ $allsize = $allfile." 文件, ".$alldir." 文件夹, <span mdui-tooltip=\"{conte
         echo '<button class="mdui-btn" disabled>文件不存在或访问被拒绝。</button>';
     }
 } ?>
+<div class="mdui-dialog" id="uploadDialog">
+    <div class="mdui-dialog-title"><i class="mdui-icon material-icons">&#xe2c3;</i> 文件上载</div>
+    <div class="mdui-dialog-content">
+        <p><input class="mdui-btn" id="fileToUpload" name="userfile" type="file" onchange="fileSelected();" style="width:100%" multiple /></p>
+        <div class="mdui-table-fluid">
+            <table class="mdui-table mdui-table-hoverable">
+                <thead>
+                    <tr>
+                        <th>进度</th>
+                        <th>名称</th>
+                        <th>大小</th>
+                        <th>类型</th>
+                    </tr>
+                </thead>
+                <tbody id="uploadlist"></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="mdui-dialog-actions">
+        <button class="mdui-btn mdui-ripple" onclick="uploadfile()" id="btn_btn_startupd" style="display:none">开始上传</button>
+        <button class="mdui-btn mdui-ripple" onclick="cancelUpload()" id="btn_cancelupd">取消</button>
+    </div>
+</div>
 <script src="/node_modules/mdui/dist/js/mdui.min.js"></script>
 <script>var $$ = mdui.JQ;</script>
 <script src="filemgr_.js"></script>
