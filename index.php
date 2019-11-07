@@ -1,10 +1,14 @@
 <?php
 $root = "/"; //相对目录的根文件夹，以"/"结尾，默认为这个 PHP 文件在哪就浏览哪个文件夹。
-$rootdir = dirname(__FILE__); //设置文件夹访问权限范围，防止恶意浏览，默认值为当前PHP文件目录为最高限制目录。
+$rootdir = dirname(__FILE__); //物理路径的根文件夹，默认为这个 PHP 文件在哪就浏览哪个文件夹。
+$s_override = true; //允许覆盖文件
+$s_delete = true; //允许删除文件
+$s_hidelinkf = true; //隐藏链接文件
+$s_hidefile = ["filemgr_.css","filemgr_.js","index.php"]; //要隐藏的文件
+$s_parentdir = false; //是否允许浏览父目录(../)
 
 $ddir = "";
 $ddira = "?";
-ini_set('open_basedir', ($rootdir.';'.sys_get_temp_dir()));
 if (isset($_GET['path']) && strlen($_GET['path']) > 0) {
     $root .= $_GET['path'];
     $root = str_replace("\\","/",$root);
@@ -24,6 +28,8 @@ if (isset($_GET['path']) && strlen($_GET['path']) > 0) {
 }
 $dirname = @dirname(__FILE__);
 $path = str_replace("\\","/",$dirname.$root);
+$canopen = true;
+if (!$s_parentdir && $path != str_replace("../","",$path)) $path = null;
 $dir = @opendir($path);
 $canopen = ($dir) ? true : false;
 if ($canopen && isset($_FILES) && count($_FILES) > 0) {
@@ -34,14 +40,39 @@ if ($canopen && isset($_FILES) && count($_FILES) > 0) {
         if ($tfile["type"] == "text/x-php" || in_array($extension, $disableExts)) {
             echo "不支持的文件类型";
         } else if ($tfile["error"] > 0) {
-            echo "错误：" . $tfile["error"];
+            echo "错误 (" . $tfile["error"] . ")";
         } else {
-            // if (file_exists($dir . $tfile["name"])) {
-            //     echo "文件已存在";
-            // } else {
-                move_uploaded_file($tfile["tmp_name"], $path .'/'. $tfile["name"]);
-                echo "完成";
-            // }
+            $exist = false;
+            $existn = true;
+            if (file_exists($dir . $tfile["name"])) {
+                $exist = true;
+                if (!$s_override) {
+                    $existn = false;
+                    echo "文件已存在";
+                }
+            }
+            if ($existn) {
+                if (move_uploaded_file($tfile["tmp_name"], $path .'/'. $tfile["name"])) {
+                    if ($exist) echo "已覆盖";
+                    else echo "完成";
+                } else {
+                    echo "服务器存储失败";
+                }
+            }
+        }
+    }
+    die();
+} else if ($canopen && isset($_POST["filelist"])) {
+    if (!$s_delete) die("禁止删除");
+    $filelist = explode(",",$_POST["filelist"]);
+    foreach ($filelist as $file) {
+        $filepath = $path.$file;
+        if (file_exists($filepath)) {
+            if (@unlink($filepath)) {
+                echo 0;
+            } else {
+                echo 1;
+            }
         }
     }
     die();
@@ -64,7 +95,7 @@ $alldir = 0;
 $rootdirlen = strlen($rootdir);
 if ($canopen) {
     while($content = readdir($dir)){
-        if($content != '.' && $content != '..'){
+        if($content != '.' && $content != '..' && !in_array($content,$s_hidefile)){
             $fullpath = $path.$content;
             $dirname = dirname($fullpath);
             // if (strlen($dirname) < $rootdirlen || strcmp(substr($dirname,0,$rootdirlen),$rootdir) != 0) die("ERR");
@@ -72,9 +103,11 @@ if ($canopen) {
             $typearr = explode("/",$type);
             $alink = str_replace("\\","/",$root.(str_replace("/","%2F",$content)));
             $icon = "24d";
+            $isdirectory = 0;
             if ($type == "directory") {
                 $type = "文件夹";
                 $alldir++;
+                $isdirectory++;
                 $icon = "2c7";
                 $alink = "?path=".$alink."/";
             } else {
@@ -88,27 +121,43 @@ if ($canopen) {
             if ($alink[0] == '/') $alink = substr($alink, 1);
             $typeicon = ["inode"=>"14f","text"=>"873","image"=>"3f4","video"=>"63a","application"=>"8b8","audio"=>"405","font"=>"8e2","message"=>"0c9","drawing"=>"40a","x-world"=>"14c"];
             if (isset($typeicon[$typearr[0]])) $icon = $typeicon[$typearr[0]];
-            $filetable .= "<tr>";
-            $filetable .= "<td><a href='".$alink."' mdui-tooltip=\"{content: '".$content."'}\"><div class='mdui-chip'><span class='mdui-chip-icon'><i class='mdui-icon material-icons'>&#xe".$icon.";</i></span><span class='mdui-chip-title'>".$content."</span></div></a></td>";
-            $filetable .= "<td>".$type."</td>";
+            $filetablerow = "<tr>";
+            $target = "";
+            if (!$isdirectory) $target = " target='_Blank'";
+            $filetablerow .= "<td><span class='rdata alink'>".$alink."</span><span class='rdata filename'>".$content."</span><a href='".$alink."' mdui-tooltip=\"{content: '".$content."'}\"".$target."><div class='mdui-chip'><span class='mdui-chip-icon'><i class='mdui-icon material-icons'>&#xe".$icon.";</i></span><span class='mdui-chip-title'>".$content."</span></div></a></td>";
+            $filetablerow .= "<td><span class='rdata type'>".$type."</span>".$type."</td>";
             $fsize = filesize($fullpath);
             $allsize += $fsize;
             if ($icon == "2c7") {
-                $filetable .= "<td></td>";
+                $filetablerow .= "<td><span class='rdata size'>0</span></td>";
             } else {
-                $filetable .= "<td><span mdui-tooltip=\"{content: '".$fsize." 字节'}\">".sizeunit($fsize)."</span></td>";
+                $filetablerow .= "<td><span class='rdata size'>".$fsize."</span><span mdui-tooltip=\"{content: '".$fsize." 字节'}\">".sizeunit($fsize)."</span></td>";
             }
             $mtime = filemtime($fullpath);
-            $filetable .= "<td>"."<span mdui-tooltip=\"{content: '时间戳：".$mtime."'}\">".date("Y-m-d h:i:s",$mtime)."</span></td>";
+            $filetablerow .= "<td><span class='rdata mtime'>".$mtime."</span><span mdui-tooltip=\"{content: '时间戳：".$mtime."'}\">".date("Y-m-d h:i:s",$mtime)."</span></td>";
             $atime = fileatime($fullpath);
-            $filetable .= "<td>"."<span mdui-tooltip=\"{content: '时间戳：".$atime."'}\">".date("Y-m-d h:i:s",$atime)."</span></td>";
-            $filetable .= "<td>";
-            if (is_executable($fullpath)) $filetable .= "<span mdui-tooltip=\"{content: '可执行文件'}\">X</span>";
-            if (is_link($fullpath)) $filetable .= "<span mdui-tooltip=\"{content: '链接文件'}\">L</span>";
-            if (is_readable($fullpath)) $filetable .= "<span mdui-tooltip=\"{content: '拥有读取权限'}\">R</span>";
-            if (is_writable($fullpath)) $filetable .= "<span mdui-tooltip=\"{content: '拥有写入权限'}\">W</span>";
-            $filetable .= "</td>";
-            $filetable .= "</tr>";
+            $filetablerow .= "<td><span class='rdata atime'>".$atime."</span><span mdui-tooltip=\"{content: '时间戳：".$atime."'}\">".date("Y-m-d h:i:s",$atime)."</span></td>";
+            $filetablerow .= "<td>";
+            $fauth = "";
+            if (is_executable($fullpath)) {
+                $filetablerow .= "<span mdui-tooltip=\"{content: '可执行文件'}\">X</span>";
+                $fauth .= 'X';
+            }
+            if (is_link($fullpath)) {
+                $filetablerow .= "<span mdui-tooltip=\"{content: '链接文件'}\">L</span>";
+                $fauth .= 'L';
+                if ($s_hidelinkf) continue;
+            }
+            if (is_readable($fullpath)) {
+                $filetablerow .= "<span mdui-tooltip=\"{content: '拥有读取权限'}\">R</span>";
+                $fauth .= 'R';
+            }
+            if (is_writable($fullpath)) {
+                $filetablerow .= "<span mdui-tooltip=\"{content: '拥有写入权限'}\">W</span>";
+                $fauth .= 'W';
+            }
+            $filetablerow .= "<span class='rdata fauth'>".$fauth."</span></td></tr>";
+            $filetable .= $filetablerow;
         }
     }
     closedir($dir);
@@ -123,7 +172,7 @@ $allsize = $allfile." 文件, ".$alldir." 文件夹, <span mdui-tooltip=\"{conte
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <meta name="renderer" content="webkit">
     <meta http-equiv="Cache-Control" content="no-siteapp"/>
-    <title>文件列表</title>
+    <title>文件夹：<?php echo $root; ?></title>
     <link rel="stylesheet" href="/node_modules/mdui/dist/css/mdui.min.css">
     <link rel="stylesheet" href="filemgr_.css">
 </head>
@@ -132,7 +181,7 @@ $allsize = $allfile." 文件, ".$alldir." 文件夹, <span mdui-tooltip=\"{conte
     <div class="mdui-toolbar mdui-color-theme">
         <a href="<?php echo $ddira; ?>" class="mdui-btn mdui-btn-icon" title="上级文件夹"><i class="mdui-icon material-icons">&#xe8fb;</i></a>
         <a href="javascript:;" class="mdui-typo-headline"><?php echo $root; ?></a>
-        <a href="javascript:;" class="mdui-typo-title"><?php echo $allsize; ?></a>
+        <!-- <a href="javascript:;" class="mdui-typo-title"><?php echo $allsize; ?></a> -->
         <div class="mdui-toolbar-spacer"></div>
         <div class="mdui-textfield mdui-textfield-expandable mdui-float-right">
             <button class="mdui-textfield-icon mdui-btn mdui-btn-icon" title="搜索"><i class="mdui-icon material-icons">&#xe8b6;</i></button>
@@ -141,10 +190,11 @@ $allsize = $allfile." 文件, ".$alldir." 文件夹, <span mdui-tooltip=\"{conte
         </div>
         <a href="javascript:window.location.reload(true);" class="mdui-btn mdui-btn-icon" title="刷新"><i class="mdui-icon material-icons">&#xe5d5;</i></a>
         <a href="javascript:openUploadDiglog();" class="mdui-btn mdui-btn-icon" title="上传文件"><i class="mdui-icon material-icons">&#xe2c3;</i></a>
+        <a href="javascript:deletefiles(<?php echo $s_delete; ?>);" class="mdui-btn mdui-btn-icon" title="删除所选文件"><i class="mdui-icon material-icons">&#xe92b;</i></a>
     </div>
 </div>
 <div class="mdui-table-fluid">
-    <table class="mdui-table mdui-table-selectable mdui-table-hoverable">
+    <table class="mdui-table mdui-table-selectable mdui-table-hoverable" id="filelisttable" onclick="filelistclick()">
         <thead>
             <tr>
                 <th>名称</th>
