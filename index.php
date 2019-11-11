@@ -32,19 +32,24 @@ $canopen = true;
 if (!$s_parentdir && $path != str_replace("../","",$path)) $path = null;
 $dir = @opendir($path);
 $canopen = ($dir) ? true : false;
-if ($canopen && isset($_FILES) && count($_FILES) > 0) {
-    foreach ($_FILES as $tfile) {
-        $disableExts = array("php");
-        $temp = explode(".", $tfile["name"]);
-        $extension = end($temp);
-        if ($tfile["type"] == "text/x-php" || in_array($extension, $disableExts)) {
+if ($canopen && isset($_FILES["file"]) && count($_FILES["file"]) > 0) {
+    $disableExts = ["php"];
+    for ($upfileId = 0; $upfileId < count($files["name"]); $upfileId++)
+        $upfileName = $files["name"];
+        $upfileType = $files["type"];
+        $upfileTemp = $files["tmp_name"];
+        $upfileErr = $files["error"];
+        $upfileSize = $files["size"];
+        $filenamearr = explode(".", $upfileName);
+        $extension = end($filenamearr);
+        if ($file["type"] == "text/x-php" || in_array($extension, $disableExts)) {
             echo "不支持的文件类型";
-        } else if ($tfile["error"] > 0) {
-            echo "错误 (" . $tfile["error"] . ")";
+        } else if ($upfileErr > 0) {
+            echo "错误 (".$upfileErr.")";
         } else {
             $exist = false;
             $existn = true;
-            if (file_exists($dir . $tfile["name"])) {
+            if (file_exists($dir.$upfileName)) {
                 $exist = true;
                 if (!$s_override) {
                     $existn = false;
@@ -52,7 +57,7 @@ if ($canopen && isset($_FILES) && count($_FILES) > 0) {
                 }
             }
             if ($existn) {
-                if (move_uploaded_file($tfile["tmp_name"], $path .'/'. $tfile["name"])) {
+                if (move_uploaded_file($upfileTemp, $path.'/'.$upfileName)) {
                     if ($exist) echo "已覆盖";
                     else echo "完成";
                 } else {
@@ -60,7 +65,6 @@ if ($canopen && isset($_FILES) && count($_FILES) > 0) {
                 }
             }
         }
-    }
     die();
 } else if ($canopen && isset($_POST["filelist"])) {
     if (!$s_delete) die("禁止删除");
