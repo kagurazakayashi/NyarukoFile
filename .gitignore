@@ -1,0 +1,12 @@
+._*
+.DS_Store
+Thumbs.db
+node_modules
+/index.html
+dist/*
+js/*
+design/*
+audio/*
+video/*
+fonts/*
+src/*.css

@@ -1,0 +1,24 @@
+{
+    "name": "nyaruko-file-w",
+    "version": "1.0.0",
+    "description": "文件管理",
+    "main": "index.js",
+    "scripts": {
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kagurazakayashi/NyarukoFile.git"
+    },
+    "keywords": [
+        "user-system"
+    ],
+    "author": "kagurazakayashi",
+    "bugs": {
+        "url": "https://github.com/kagurazakayashi/NyarukoFile/issues"
+    },
+    "homepage": "https://github.com/kagurazakayashi/NyarukoFile#readme",
+    "devDependencies": {
+    },
+    "dependencies": {
+    }
+}

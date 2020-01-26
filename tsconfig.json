@@ -1,0 +1,65 @@
+{
+    "compilerOptions": {
+        /* Visit https://aka.ms/tsconfig.json to read more about this file */
+        /* 基本選項 Basic Options */
+        // "incremental": true,                         /* 啟用增量編譯 Enable incremental compilation */
+        "target": "es5", /* 指定ECMAScript的目標版本 Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'. */
+        //"module": "commonjs",                           /* 指定模組程式碼生成 Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */
+        // "lib": [],                                   /* 指定要包含在編譯中的庫檔案 Specify library files to be included in the compilation. */
+        // "allowJs": true,                             /* 允許編譯javascript檔案 Allow javascript files to be compiled. */
+        // "checkJs": true,                             /* 報告.js檔案中的錯誤 Report errors in .js files. */
+        // "jsx": "preserve",                           /* 指定JSX程式碼生成 Specify JSX code generation: 'preserve', 'react-native', 'react', 'react-jsx' or 'react-jsxdev'. */
+        // "declaration": true,                         /* 生成相應的.d.ts的檔案 Generates corresponding '.d.ts' file. */
+        // "declarationMap": true,                      /* 為每個對應的.d.ts生成一個sourcemap的檔案 Generates a sourcemap for each corresponding '.d.ts' file. */
+        // "sourceMap": true,                           /* 生成相應的.map對映的檔案 Generates corresponding '.map' file. */
+        // "outFile": "./",                             /* 連線並將輸出輸出到單個檔案 Concatenate and emit output to single file. */
+        "outDir": "./dist", /* 重定向輸出結構目錄 Redirect output structure to the directory. */
+        "rootDir": "./src", /* 指定輸入檔案的根目錄。使用——outDir控制輸出目錄結構 Specify the root directory of input files. Use to control the output directory structure with --outDir. */
+        // "composite": true,                           /* 使專案編譯 Enable project compilation */
+        // "tsBuildInfoFile": "./",                     /* 指定檔案以儲存增量編譯資訊 Specify file to store incremental compilation information */
+        // "removeComments": true,                      /* 不發出註釋輸出 Do not emit comments to output. */
+        // "noEmit": true,                              /* 不輸出 Do not emit outputs. */
+        // "importHelpers": true,                       /* 從'tslib'匯入emit helpers. Import emit helpers from 'tslib'. */
+        // "downlevelIteration": true,                  /* 在以“ES5”或“ES3”為目標時，在“for-of”、“spread”和“destructuring”中提供對可迭代物件的全面支援。 Provide full support for iterables in 'for-of', spread, and destructuring when targeting 'ES5' or 'ES3'. */
+        // "isolatedModules": true,                     /* 將每個檔案轉換為一個單獨的模組(類似於'ts.transpileModule')。 Transpile each file as a separate module (similar to 'ts.transpileModule'). */
+        /* 嚴格的型別檢查選項 Strict Type-Checking Options */
+        "strict": true, /* 啟用所有嚴格的型別檢查選項 Enable all strict type-checking options. */
+        // "noImplicitAny": true,                       /* 對於隱含有'any'型別的表示式和宣告引發錯誤 Raise error on expressions and declarations with an implied 'any' type. */
+        // "strictNullChecks": true,                    /* 啟用嚴格的空檢查 Enable strict null checks. */
+        // "strictFunctionTypes": true,                 /* 啟用嚴格的功能型別檢查 Enable strict checking of function types. */
+        // "strictBindCallApply": true,                 /* 在函式上啟用嚴格的'bind'，'call'和'apply'方法 Enable strict 'bind', 'call', and 'apply' methods on functions. */
+        // "strictPropertyInitialization": true,        /* 在類中啟用嚴格的屬性初始化檢查 Enable strict checking of property initialization in classes. */
+        // "noImplicitThis": true,                      /* 在隱含有'any'型別的'this'表示式上引發錯誤 Raise error on 'this' expressions with an implied 'any' type. */
+        // "alwaysStrict": true,                        /* 在嚴格模式下解析併為每個原始檔發出“use strict”(使用嚴格) Parse in strict mode and emit "use strict" for each source file. */
+        /* 額外的檢查 Additional Checks */
+        // "noUnusedLocals": true,                      /* 報告未使用的區域性變數的錯誤 Report errors on unused locals. */
+        // "noUnusedParameters": true,                  /* 報告未使用引數的錯誤 Report errors on unused parameters. */
+        // "noImplicitReturns": true,                   /* 當函式中不是所有程式碼路徑都返回值時，報告錯誤 Report error when not all code paths in function return a value. */
+        // "noFallthroughCasesInSwitch": true,          /* 報告switch語句中失敗情況的錯誤 Report errors for fallthrough cases in switch statement. */
+        // "noUncheckedIndexedAccess": true,            /* 在索引簽名結果中包含'undefined' Include 'undefined' in index signature results */
+        // "noPropertyAccessFromIndexSignature": true,  /* 需要索引簽名中未宣告的屬性才能使用元素訪問 Require undeclared properties from index signatures to use element accesses. */
+        /* 模組解析選項 Module Resolution Options */
+        // "moduleResolution": "node",                  /* 指定模組解析策略 Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
+        // "baseUrl": "./",                             /* 用於解析非絕對模組名稱的基本目錄 Base directory to resolve non-absolute module names. */
+        // "paths": {},                                 /* 一系列條目將匯入重新對映到相對於“baseUrl”的查詢位置 A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
+        // "rootDirs": [],                              /* 根資料夾的列表，其組合內容表示執行時專案的結構 List of root folders whose combined content represents the structure of the project at runtime. */
+        // "typeRoots": [],                             /* 包含型別定義的資料夾列表 List of folders to include type definitions from. */
+        // "types": [],                                 /* 要包含在編譯中的型別宣告檔案 Type declaration files to be included in compilation. */
+        // "allowSyntheticDefaultImports": true,        /* 允許從沒有預設匯出的模組中進行預設匯入。這並不影響程式碼發出，只是型別檢查 Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */
+        "esModuleInterop": true, /* 透過為所有匯入建立名稱空間物件，實現CommonJS和ES模組之間的互操作性。
+        意味著“allowSyntheticDefaultImports”。 Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
+        // "preserveSymlinks": true,                    /* 不能解決符號連結的真實路徑 Do not resolve the real path of symlinks. */
+        // "allowUmdGlobalAccess": true,                /* 允許從模組中訪問UMD全域性變數 Allow accessing UMD globals from modules. */
+        /* 源地圖選項 Source Map Options */
+        // "sourceRoot": "",                            /* 指定偵錯程式應該定位TypeScript檔案的位置，而不是原始檔的位置 Specify the location where debugger should locate TypeScript files instead of source locations. */
+        // "mapRoot": "",                               /* 指定偵錯程式定位對映檔案的位置，而不是生成的位置 Specify the location where debugger should locate map files instead of generated locations. */
+        // "inlineSourceMap": true,                     /* 使用源對映生成單個檔案，而不是使用單獨的檔案 Emit a single file with source maps instead of having a separate file. */
+        // "inlineSources": true,                       /* 在單個檔案中，在sourcemaps的旁邊發出源;需要設定'——inlineSourceMap'或'——sourceMap'。 Emit the source alongside the sourcemaps within a single file; requires '--inlineSourceMap' or '--sourceMap' to be set. */
+        /* 實驗選項 Experimental Options */
+        // "experimentalDecorators": true,              /* 支援對ES7裝飾器的實驗性支援 Enables experimental support for ES7 decorators. */
+        // "emitDecoratorMetadata": true,               /* 為裝飾器傳送型別元資料提供實驗性支援 Enables experimental support for emitting type metadata for decorators. */
+        /* 高階選項 Advanced Options */
+        "skipLibCheck": true, /* 跳過宣告檔案的型別檢查 Skip type checking of declaration files. */
+        "forceConsistentCasingInFileNames": true /* 禁止對同一檔案使用大小寫不一致的引用 Disallow inconsistently-cased references to the same file. */
+    }
+}
