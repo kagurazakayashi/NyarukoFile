@@ -1,3 +1,4 @@
+import mdui from 'mdui';
 
 export default class InitUI {
 
