@@ -1,0 +1,3 @@
+[submodule "src/nyalib"]
+	path = src/nyalib
+	url = https://github.com/kagurazakayashi/libNyaruko_TS.git
